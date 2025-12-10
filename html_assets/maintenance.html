@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>민원/수리 신청</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" />
+</head>
+
+<body class="min-h-screen bg-gray-100">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex items-center gap-4 mb-8">
+      <a href="/" class="flex items-center gap-2 text-blue-600 hover:text-blue-500 transition-colors">
+        ← 메인으로 돌아가기
+      </a>
+    </div>
+
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow mb-6">
+      <div class="text-center p-6 border-b">
+        <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+          🔧
+        </div>
+        <h1 class="text-2xl font-bold">민원/수리 신청</h1>
+        <p class="text-gray-500">시설 수리 및 민원을 신청하세요</p>
+      </div>
+      <div class="p-6 space-y-6">
+        <div class="grid gap-4">
+          <div class="space-y-2">
+            <label for="student-id" class="block text-sm font-medium">학번</label>
+            <input id="student-id" type="text" placeholder="(필수)학번을 입력하세요" class="w-full border rounded p-2" />
+          </div>
+
+          <div class="space-y-2">
+            <label for="student-name" class="block text-sm font-medium">이름</label>
+            <input id="student-name" type="text" placeholder="(필수)이름을 입력하세요" class="w-full border rounded p-2" />
+          </div>
+
+          <div class="space-y-2">
+            <label for="room" class="block text-sm font-medium">호실</label>
+            <input id="room" type="text" placeholder="(필수)호실을 입력하세요" class="w-full border rounded p-2" />
+          </div>
+
+          <div class="space-y-2">
+            <label for="category" class="block text-sm font-medium">(필수)카테고리</label>
+            <select id="category" class="w-full border rounded p-2">
+              <option value="">카테고리를 선택하세요</option>
+              <option value="시설">시설</option>
+              <option value="전기">전기</option>
+              <option value="수도">수도</option>
+              <option value="냉난방">냉난방</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label for="urgency" class="block text-sm font-medium">(필수)긴급도</label>
+            <select id="urgency" class="w-full border rounded p-2">
+              <option value="">긴급도를 선택하세요</option>
+              <option value="긴급">긴급</option>
+              <option value="보통">보통</option>
+              <option value="낮음">낮음</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label for="title" class="block text-sm font-medium">(필수)제목</label>
+            <input id="title" type="text" placeholder="예: 화장실 누수" class="w-full border rounded p-2" />
+          </div>
+
+          <div class="space-y-2">
+            <label for="description" class="block text-sm font-medium">(필수)상세 내용</label>
+            <textarea id="description" rows="4" placeholder="수리가 필요한 부분을 자세히 설명해주세요" class="w-full border rounded p-2"></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <button class="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-500 transition">신청하기</button>
+          <button class="flex-1 border border-gray-300 py-2 rounded hover:bg-gray-50 transition">초기화</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 내 민원 조회 -->
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow">
+      <div class="p-6 border-b">
+        <h2 class="text-xl font-bold">내 민원 조회</h2>
+      </div>
+      <div class="p-6">
+        <div class="flex gap-2 mb-4">
+          <input id="search-id" type="text" placeholder="학번 입력" class="flex-1 border rounded p-2" />
+          <button id="search-btn" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition">조회</button>
+        </div>
+        <div id="list" class="space-y-3">
+          <p class="text-center text-gray-500 py-4">학번을 입력하고 조회하세요</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/assets/js/maintenance.js?v=2"></script>
+
+</body>
+
+</html>

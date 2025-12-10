@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>예약 목록(관리자)</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center justify-between">
+            <a href="/" class="text-blue-600 hover:text-blue-500">← 메인으로 돌아가기</a>
+            <div class="space-x-3">
+                <span class="text-sm font-semibold text-gray-900">🔧 관리자 페이지</span>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto bg-white rounded-lg shadow mt-6">
+            <div class="p-6 border-b">
+                <h1 class="text-2xl font-bold">공간예약 관리</h1>
+                <p class="text-gray-500 text-sm mt-1">모든 예약 내역(확정/대기/취소)을 조회하고 관리할 수 있습니다. 필터를 사용하여 특정 공간이나 날짜를 검색할 수 있습니다.</p>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-3 gap-3">
+                    <input id="adm-room" class="border rounded p-2" placeholder="공간(예: ROOM_A, 비우면 전체)" />
+                    <input id="adm-date" type="date" class="border rounded p-2" />
+                    <button id="adm-load" class="bg-gray-800 text-white py-2 rounded hover:bg-gray-700">불러오기</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-3 py-2 text-left">공간ID</th>
+                                <th class="px-3 py-2 text-left">날짜</th>
+                                <th class="px-3 py-2 text-left">시간대</th>
+                                <th class="px-3 py-2 text-left">상태</th>
+                                <th class="px-3 py-2 text-left">학번</th>
+                                <th class="px-3 py-2 text-left">이름</th>
+                                <th class="px-3 py-2 text-left">ID</th>
+                                <th class="px-3 py-2 text-left">조작</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adm-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const room = document.getElementById("adm-room");
+            const date = document.getElementById("adm-date");
+            const load = document.getElementById("adm-load");
+            const tbody = document.getElementById("adm-tbody");
+
+            if (!date.value) {
+                const t = new Date();
+                const y = t.getFullYear();
+                const m = String(t.getMonth() + 1).padStart(2, "0");
+                const d = String(t.getDate()).padStart(2, "0");
+                date.placeholder = `${y}-${m}-${d}`;
+            }
+
+            load.addEventListener("click", async () => {
+                const q = new URLSearchParams();
+                if (room.value) q.set("spaceId", room.value);
+                if (date.value) q.set("date", date.value);
+
+                const res = await fetch(`/api/reservations/all?${q}`);
+                const json = await res.json();
+
+                tbody.innerHTML = "";
+                if (!json.ok || !json.data || json.data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="px-3 py-4 text-center text-gray-500">예약 내역이 없습니다.</td></tr>`;
+                    return;
+                }
+
+                json.data.forEach(item => {
+                    const tr = document.createElement("tr");
+                    tr.className = "border-b hover:bg-gray-50";
+                    const statusBadge = item.status === "confirmed" ? `<span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">확정</span>` :
+                                       item.status === "waitlist" ? `<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">대기</span>` :
+                                       `<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">취소</span>`;
+                    tr.innerHTML = `
+                        <td class="px-3 py-2">${item.spaceId || ""}</td>
+                        <td class="px-3 py-2">${item.date || ""}</td>
+                        <td class="px-3 py-2">${item.timeSlot || ""}</td>
+                        <td class="px-3 py-2">${statusBadge}</td>
+                        <td class="px-3 py-2">${item.studentId || ""}</td>
+                        <td class="px-3 py-2">${item.studentName || ""}</td>
+                        <td class="px-3 py-2 text-xs text-gray-500">${item._id || item.id || ""}</td>
+                        <td class="px-3 py-2">
+                            ${item.status !== "cancelled" ? `<button data-id="${item._id || item.id}" class="px-3 py-1 text-sm border border-red-300 text-red-600 rounded hover:bg-red-50">취소</button>` : ""}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                [...tbody.querySelectorAll("button[data-id]")].forEach(btn => {
+                    btn.addEventListener("click", async () => {
+                        const id = btn.getAttribute("data-id");
+                        if (!confirm("정말 취소하시겠습니까?")) return;
+                        const res = await fetch(`/api/reservations/${id}`, { method: "DELETE" });
+                        const json = await res.json();
+                        if (!json.ok) {
+                            alert("취소 실패: " + (json.message || "알 수 없는 오류"));
+                            return;
+                        }
+                        alert("취소 완료" + (json.promoted ? " (대기열 승격됨)" : ""));
+                        load.click();
+                    });
+                });
+            });
+
+            load.click();
+        })();
+    </script>
+</body>
+</html>
